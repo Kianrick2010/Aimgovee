@@ -149,6 +149,11 @@ document.addEventListener('DOMContentLoaded', () => {
             msgDiv.innerHTML = `<div class="message-bubble">${text}</div>`;
             container.appendChild(msgDiv);
             container.scrollTop = container.scrollHeight;
+
+            if (sender === 'bot' && 'speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                window.speechSynthesis.speak(utterance);
+            }
         }
 
         let chatState = null;
@@ -325,6 +330,51 @@ document.addEventListener('DOMContentLoaded', () => {
         chatInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') handleGeneralChat();
         });
+
+        // Speech Recognition Setup
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            function setupVoiceInput(micBtnId, inputElem, submitFunc) {
+                const micBtn = document.getElementById(micBtnId);
+                if (!micBtn) return;
+                
+                const recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+
+                recognition.onstart = () => {
+                    micBtn.classList.add('listening');
+                };
+
+                recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    inputElem.value = transcript;
+                };
+
+                recognition.onerror = (event) => {
+                    console.error('Speech recognition error', event.error);
+                    micBtn.classList.remove('listening');
+                };
+
+                recognition.onend = () => {
+                    micBtn.classList.remove('listening');
+                    if (inputElem.value) {
+                        submitFunc();
+                    }
+                };
+
+                micBtn.addEventListener('click', () => {
+                    if (micBtn.classList.contains('listening')) {
+                        recognition.stop();
+                    } else {
+                        recognition.start();
+                    }
+                });
+            }
+
+            setupVoiceInput('device-mic-btn', deviceChatInput, handleDeviceChat);
+            setupVoiceInput('mic-btn', chatInput, handleGeneralChat);
+        }
     }
     // Govee Devices Logic
     const devicesGrid = document.getElementById('devices-grid');

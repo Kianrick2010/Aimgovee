@@ -607,3 +607,30 @@ body {
     flex-direction: column;
     gap: 10px;
 }
+
+/* Voice Chat Styles */
+.mic-btn {
+    background: transparent;
+    color: var(--text-primary);
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: color 0.3s, transform 0.3s;
+    margin-right: 5px;
+}
+
+.mic-btn:hover {
+    color: var(--accent-primary);
+    transform: scale(1.1);
+}
+
+.mic-btn.listening {
+    color: #ff4757;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aim (AI Maid) - Aim for more</title>
+    <meta name="description" content="AI.M is the ultimate unified smart home ecosystem. Connect modern devices and traditional appliances into one cohesive network.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Pickr for modern color picker -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/monolith.min.css"/>
+</head>
+<body>
+    <header class="header">
+        <div class="container nav-container">
+            <div class="logo">AIM</div>
+            <nav class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#solution">How it works</a>
+                <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Theme">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-bg"></div>
+            <div class="container hero-content">
+                <h1 class="hero-title">Aim for more</h1>
+                <p class="hero-subtitle">The Ultimate Unified Smart Home Ecosystem</p>
+                <div class="waitlist-container">
+                    <p>Join the future of home living. Sign up for updates.</p>
+                    <form id="waitlist-form" class="waitlist-form">
+                        <input type="email" id="email-input" placeholder="Enter your email address" required>
+                        <button type="submit" class="btn btn-primary">Join Waitlist</button>
+                    </form>
+                    <div id="form-message" class="form-message hidden">Thank you! You've been added to our waitlist.</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="devices" class="section devices-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Connected Devices</h2>
+                    <p>Control your Govee lights and appliances directly from Aim.</p>
+                </div>
+                <div id="device-status-message" class="form-message hidden"></div>
+                <div class="grid devices-grid" id="devices-grid">
+                    <!-- Devices will be populated here by JavaScript -->
+                    <div class="card glass device-loading">
+                        <i class="fa-solid fa-spinner fa-spin"></i>
+                        <p>Loading devices...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="device-chatbot" class="section device-chatbot-section">
+            <div class="container">
+                <div class="small-chat-container glass">
+                    <div class="chat-messages small-chat-messages" id="device-chat-messages">
+                        <div class="message bot-message">
+                            <div class="message-bubble">I'm ready! Try: "Turn it on" or "Change the colour to red"</div>
+                        </div>
+                    </div>
+                    <div class="chat-input-container">
+                        <input type="text" id="device-chat-input" placeholder="Command your devices..." autocomplete="off">
+                        <button id="device-chat-send-btn" aria-label="Send Command"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="solution" class="section solution-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Bridging the Gap</h2>
+                    <p>Transforming scattered apps into a single, living ecosystem.</p>
+                </div>
+                <div class="grid solution-grid">
+                    <div class="card glass">
+                        <div class="card-icon"><i class="fa-solid fa-mobile-screen"></i></div>
+                        <h3>The Issue</h3>
+                        <p>Smart homes today require scattered apps and expensive upgraded appliances, leading to frustration and inefficiency.</p>
+                    </div>
+                    <div class="card glass">
+                        <div class="card-icon"><i class="fa-solid fa-microchip"></i></div>
+                        <h3>The AI.M Solution</h3>
+                        <p>Centralized autonomous management that learns your routine and works perfectly with what you already own.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="section features-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Experience True Autonomy</h2>
+                    <p>Saves time, maximizes energy efficiency, and brings robotics into daily life.</p>
+                </div>
+                <div class="grid features-grid">
+                    <div class="card feature-card">
+                        <div class="card-image-placeholder">
+                            <i class="fa-solid fa-brain"></i>
+                        </div>
+                        <h3>Context-Aware Automation</h3>
+                        <p><strong>Autonomous Efficiency:</strong> Runs vacuums, dishwashers, and laundry automatically after you leave.</p>
+                        <p><strong>"Recipe" Goals:</strong> Give one high-level command (e.g., "I want fried chicken for dinner"), and the AI coordinates defrosting and oven preheating.</p>
+                    </div>
+                    <div class="card feature-card">
+                        <div class="card-image-placeholder">
+                            <i class="fa-solid fa-plug"></i>
+                        </div>
+                        <h3>Bringing "Dumb" Appliances to Life</h3>
+                        <p>No need to buy all-new smart appliances. AI.M physically flips switches, turns dials, and closes windows.</p>
+                        <p>Handles physical tasks like moving food from the fridge to the oven.</p>
+                    </div>
+                    <div class="card feature-card">
+                        <div class="card-image-placeholder">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <h3>Comfort and Peace of Mind</h3>
+                        <p><strong>Climate & Security:</strong> Seamlessly syncs locks, cameras, and temperature controls.</p>
+                        <p><strong>Guardrails:</strong> Strict user-defined boundaries and temperature limits to prevent accidents.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="chatbot" class="section chatbot-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Ask AI.M</h2>
+                    <p>Have questions? Chat with our AI assistant to learn more.</p>
+                </div>
+                <div class="chat-container glass">
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="message bot-message">
+                            <div class="message-bubble">Hello! I'm AI.M. Ask me anything about how I can unify your smart home, manage your appliances, or keep you secure!</div>
+                        </div>
+                    </div>
+                    <div class="chat-input-container">
+                        <input type="text" id="chat-input" placeholder="Type your message here..." autocomplete="off">
+                        <button id="chat-send-btn" aria-label="Send Message"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-brand">
+                <h3>AIM</h3>
+                <p>Autonomous AI Household Assistant</p>
+            </div>
+            <div class="footer-links">
+                <p>Created by Kayan, Kian, Ryan</p>
+                <a href="https://ai-maid-home.base44.app" target="_blank">ai-maid-home.base44.app</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -90,6 +90,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (sender === 'bot' && 'speechSynthesis' in window) {
                 const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 1.15; // Speak a bit faster (default is 1.0)
+                utterance.pitch = 1.05; // Slightly more natural pitch
+
+                // Try to find a more human-sounding voice instead of the default robot
+                const voices = window.speechSynthesis.getVoices();
+                const humanVoice = voices.find(v => 
+                    v.name.includes('Natural') || 
+                    v.name.includes('Google') || 
+                    v.name.includes('Samantha') || 
+                    v.name.includes('Zira')
+                );
+                
+                if (humanVoice) {
+                    utterance.voice = humanVoice;
+                }
+
                 window.speechSynthesis.speak(utterance);
             }
         }

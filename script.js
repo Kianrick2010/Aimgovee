@@ -347,8 +347,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
 
                 recognition.onresult = (event) => {
-                    const transcript = event.results[0][0].transcript;
+                    const transcript = event.results[event.results.length - 1][0].transcript;
                     inputElem.value = transcript;
+                    submitFunc();
                 };
 
                 recognition.onerror = (event) => {
@@ -358,9 +359,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 recognition.onend = () => {
                     micBtn.classList.remove('listening');
-                    if (inputElem.value) {
-                        submitFunc();
-                    }
                 };
 
                 micBtn.addEventListener('click', () => {

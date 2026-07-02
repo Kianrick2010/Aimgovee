@@ -88,6 +88,10 @@ document.addEventListener('DOMContentLoaded', () => {
             container.appendChild(msgDiv);
             container.scrollTop = container.scrollHeight;
 
+            if (sender === 'user' && 'speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+
             if (sender === 'bot' && 'speechSynthesis' in window) {
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.rate = 1.15; // Speak a bit faster (default is 1.0)
@@ -176,10 +180,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // Enhanced Command parsing
-            let detectedCommand = null;
-            if (lowerInput.includes('turn on') || lowerInput.includes('turn it on') || lowerInput === 'on') detectedCommand = 'on';
-            else if (lowerInput.includes('turn off') || lowerInput.includes('turn it off') || lowerInput === 'off') detectedCommand = 'off';
+        // Enhanced Command parsing
+        let detectedCommand = null;
+        if (lowerInput.includes('turn on') || lowerInput.includes('turn it on') || lowerInput === 'on' || lowerInput.includes('turn lights on') || lowerInput.includes('turn bulb on') || lowerInput.includes('turn the lights on')) detectedCommand = 'on';
+        else if (lowerInput.includes('turn off') || lowerInput.includes('turn it off') || lowerInput === 'off' || lowerInput.includes('turn lights off') || lowerInput.includes('turn bulb off') || lowerInput.includes('turn the lights off')) detectedCommand = 'off';
             else if (lowerInput.includes('random') || (lowerInput.includes('change') && (lowerInput.includes('color') || lowerInput.includes('colour')) && !Object.keys(colorMap).some(c => lowerInput.includes(c)))) detectedCommand = 'color:random';
             else if (lowerInput.includes('brightness')) {
                 const match = lowerInput.match(/(\d+)/);

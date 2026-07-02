@@ -79,69 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const deviceChatMessages = document.getElementById('device-chat-messages');
 
     if (chatInput && chatSendBtn && chatMessages) {
-        // Simple knowledge base based on the PowerPoint
-        const knowledgeBase = [
-            {
-                keywords: ['hello', 'hi', 'hey', 'greetings', 'morning', 'afternoon'],
-                response: "Hello there! I'm AI.M, your autonomous AI household assistant. How can I help you streamline your home today?"
-            },
-            {
-                keywords: ['what', 'is', 'aim', 'ai.m', 'ai maid'],
-                response: "AI.M (AI Maid) is the ultimate unified smart home ecosystem. I am a central AI designed to fully automate your household management, connecting modern smart devices and traditional appliances into one cohesive network."
-            },
-            {
-                keywords: ['dumb', 'traditional', 'appliances', 'old'],
-                response: "You don't need to buy all-new smart appliances! I can physically flip switches, turn dials, and close windows to bring your 'dumb' appliances to life. I can even handle physical tasks like moving food from the fridge to the oven."
-            },
-            {
-                keywords: ['cost', 'expensive', 'buy', 'upgrade', 'money', 'budget'],
-                response: "You don't need to spend thousands on expensive upgraded appliances! I'm designed to work perfectly with what you already own, bridging the gap without breaking the bank."
-            },
-            {
-                keywords: ['recipe', 'cook', 'dinner', 'food', 'chicken'],
-                response: "With my 'Recipe' goals, you can give me one high-level command like 'I want fried chicken for dinner', and I will coordinate defrosting and oven preheating for you!"
-            },
-            {
-                keywords: ['leave', 'vacuum', 'dishwasher', 'laundry', 'efficiency'],
-                response: "I offer autonomous efficiency. I can run vacuums, dishwashers, and laundry automatically after you leave the house."
-            },
-            {
-                keywords: ['safety', 'security', 'guardrails', 'lock', 'temperature', 'camera'],
-                response: "I seamlessly sync locks, cameras, and temperature controls for your comfort and peace of mind. I also follow strict user-defined boundaries and temperature limits as guardrails to prevent any accidents."
-            },
-            {
-                keywords: ['creator', 'created', 'team', 'who', 'made', 'kian', 'kayan', 'ryan'],
-                response: "I was created by the amazing team of Kayan, Kian, and Ryan!"
-            },
-            {
-                keywords: ['problem', 'issue', 'why', 'gap'],
-                response: "Smart homes today require scattered apps and expensive upgraded appliances. I bridge the gap by providing centralized autonomous management that learns your routine and works with what you already own."
-            },
-            {
-                keywords: ['website', 'link', 'app', 'url', 'online'],
-                response: "You can learn more and manage your ecosystem at our app portal: https://ai-maid-home.base44.app"
-            },
-            {
-                keywords: ['energy', 'save', 'money', 'power', 'electricity', 'bill'],
-                response: "By transforming your scattered apps into a single living ecosystem, I maximize your energy efficiency! I only run appliances when needed and turn things off when you're away."
-            },
-            {
-                keywords: ['learn', 'routine', 'schedule', 'smart', 'habit'],
-                response: "I feature centralized autonomous management that actually learns your daily routine. Once I know your habits, I can seamlessly work in the background without you having to lift a finger."
-            },
-            {
-                keywords: ['pet', 'dog', 'cat', 'roomba', 'animal'],
-                response: "I'm great for pet owners! I can sync with your cameras to keep an eye on them, manage climate control for their comfort, and automatically run the vacuum (or Roomba) while you're out."
-            },
-            {
-                keywords: ['time', 'busy', 'work', 'free'],
-                response: "My primary goal is to save you time. By automating your chores and bringing robotics into your daily life, you get to focus on what really matters."
-            },
-            {
-                keywords: ['robot', 'robotics', 'move', 'physical'],
-                response: "I bring robotics into daily life! I can physically flip switches, turn dials, close windows, and even handle physical tasks like moving food from the fridge to the oven."
-            }
-        ];
+
 
         function appendMessage(text, sender, container) {
             const msgDiv = document.createElement('div');
@@ -260,26 +198,20 @@ document.addEventListener('DOMContentLoaded', () => {
             return "I didn't recognize that command. Try 'turn it on' or 'change colour to red'.";
         }
 
-        function getGeneralBotResponse(input) {
-            const lowerInput = input.toLowerCase();
-            let bestMatch = null;
-            let maxMatches = 0;
-
-            knowledgeBase.forEach(entry => {
-                let matches = 0;
-                entry.keywords.forEach(kw => {
-                    if (lowerInput.includes(kw)) matches++;
+        async function getGeneralBotResponse(input) {
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: input })
                 });
-                if (matches > maxMatches) {
-                    maxMatches = matches;
-                    bestMatch = entry.response;
-                }
-            });
-
-            if (bestMatch && maxMatches > 0) {
-                return bestMatch;
+                if (!response.ok) throw new Error('API Error');
+                const data = await response.json();
+                return data.response;
+            } catch (error) {
+                console.error(error);
+                return "I'm having trouble connecting to my AI brain right now!";
             }
-            return "I'm still learning! But I can tell you that I'm designed to transform scattered apps into a single, living ecosystem that saves time and brings robotics into daily life.";
         }
 
         async function handleDeviceChat() {
@@ -306,17 +238,27 @@ document.addEventListener('DOMContentLoaded', () => {
             appendMessage(response, 'bot', deviceChatMessages);
         }
 
-        function handleGeneralChat() {
+        async function handleGeneralChat() {
             const text = chatInput.value.trim();
             if (!text) return;
 
             appendMessage(text, 'user', chatMessages);
             chatInput.value = '';
 
-            setTimeout(() => {
-                const response = getGeneralBotResponse(text);
-                appendMessage(response, 'bot', chatMessages);
-            }, 600);
+            const typingId = Math.random().toString(36).substr(2, 9);
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'message bot-message';
+            msgDiv.id = typingId;
+            msgDiv.innerHTML = '<div class="message-bubble"><i class="fa-solid fa-ellipsis fa-fade"></i></div>';
+            chatMessages.appendChild(msgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            const response = await getGeneralBotResponse(text);
+            
+            const typingElem = document.getElementById(typingId);
+            if(typingElem) typingElem.remove();
+
+            appendMessage(response, 'bot', chatMessages);
         }
 
         if (deviceChatSendBtn) deviceChatSendBtn.addEventListener('click', handleDeviceChat);

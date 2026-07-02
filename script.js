@@ -195,7 +195,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            return "I didn't recognize that command. Try 'turn it on' or 'change colour to red'.";
+            // If it's a weather request, pass it to Gemini!
+            if (lowerInput.includes('weather') || lowerInput.includes('temperature') || lowerInput.includes('rain')) {
+                return await getGeneralBotResponse(input);
+            }
+
+            return "I didn't recognize that device command. Try 'turn it on' or ask about the weather!";
         }
 
         async function getGeneralBotResponse(input) {

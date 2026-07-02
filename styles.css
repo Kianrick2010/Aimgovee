@@ -393,6 +393,39 @@ body {
 }
 
 /* Chatbot Section */
+/* Weather Widget */
+.weather-widget {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px 40px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    max-width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+    background: var(--card-bg);
+}
+
+.weather-icon i {
+    font-size: 3.5rem;
+    color: var(--accent-primary);
+}
+
+.weather-info h3 {
+    font-size: 2.5rem;
+    margin: 0;
+    margin-bottom: 5px;
+    color: var(--text-primary);
+}
+
+.weather-info p {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+}
+
 .chat-container {
     max-width: 800px;
     margin: 0 auto;

@@ -323,6 +323,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (devicesGrid) {
         fetchDevices();
+        fetchWeather();
+    }
+
+    async function fetchWeather() {
+        const weatherTemp = document.getElementById('weather-temp');
+        const weatherDesc = document.getElementById('weather-desc');
+        const weatherIcon = document.getElementById('weather-icon-el');
+        if (!weatherTemp) return;
+
+        try {
+            // London coordinates
+            const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=51.5074&longitude=-0.1278&current_weather=true');
+            const data = await response.json();
+            
+            if (data && data.current_weather) {
+                const temp = data.current_weather.temperature;
+                const code = data.current_weather.weathercode;
+                
+                weatherTemp.textContent = `${temp}°C`;
+                
+                let desc = "Clear";
+                let iconClass = "fa-cloud-sun";
+                
+                if (code === 0) { desc = "Clear Sky"; iconClass = "fa-sun"; }
+                else if (code <= 3) { desc = "Partly Cloudy"; iconClass = "fa-cloud-sun"; }
+                else if (code <= 49) { desc = "Foggy"; iconClass = "fa-smog"; }
+                else if (code <= 69) { desc = "Raining"; iconClass = "fa-cloud-rain"; }
+                else if (code <= 79) { desc = "Snowing"; iconClass = "fa-snowflake"; }
+                else { desc = "Stormy"; iconClass = "fa-cloud-bolt"; }
+                
+                weatherDesc.textContent = `London (${desc})`;
+                weatherIcon.className = `fa-solid ${iconClass}`;
+            }
+        } catch (err) {
+            console.error('Weather fetch error:', err);
+            weatherDesc.textContent = "Weather unavailable";
+        }
     }
 
     async function fetchDevices() {

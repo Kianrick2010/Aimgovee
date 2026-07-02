@@ -97,7 +97,8 @@ app.post('/api/chat', async (req, res) => {
                 },
                 contents: [{
                     parts: [{ text: message }]
-                }]
+                }],
+                tools: [{ googleSearch: {} }]
             }
         );
 

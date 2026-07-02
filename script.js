@@ -354,6 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 recognition.onerror = (event) => {
                     console.error('Speech recognition error', event.error);
+                    inputElem.value = "Mic Error: " + event.error;
                     micBtn.classList.remove('listening');
                 };
 

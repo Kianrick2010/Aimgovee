@@ -654,9 +654,38 @@ body {
     padding: 5px;
 }
 
-.mic-btn:hover {
+.theme-toggle:hover {
     color: var(--accent-primary);
     transform: scale(1.1);
+}
+
+.wake-word-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    border: 1px solid var(--card-border);
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+}
+
+.wake-word-btn:hover {
+    background: rgba(92, 60, 241, 0.2);
+    border-color: var(--accent-primary);
+    transform: scale(1.05);
+}
+
+.wake-word-btn.listening {
+    background: rgba(255, 71, 87, 0.2);
+    border-color: #ff4757;
+    color: #ff4757;
+    animation: pulse 2s infinite;
 }
 
 .mic-btn.listening {

@@ -340,6 +340,82 @@ document.addEventListener('DOMContentLoaded', () => {
 
             setupVoiceInput('device-mic-btn', deviceChatInput, handleDeviceChat);
             setupVoiceInput('mic-btn', chatInput, handleGeneralChat);
+
+            // Wake Word Detection Logic
+            const wakeWordBtn = document.getElementById('wake-word-btn');
+            const wakeWordStatus = document.getElementById('wake-word-status');
+            let isWakeWordMode = false;
+            let wakeWordRecognition = null;
+            let isProcessingCommand = false;
+
+            if (wakeWordBtn) {
+                wakeWordRecognition = new SpeechRecognition();
+                wakeWordRecognition.continuous = true;
+                wakeWordRecognition.interimResults = false;
+
+                wakeWordRecognition.onstart = () => {
+                    if (!isProcessingCommand) {
+                        wakeWordBtn.classList.add('listening');
+                        wakeWordStatus.textContent = "Listening for 'Aim'...";
+                    }
+                };
+
+                wakeWordRecognition.onresult = async (event) => {
+                    if (isProcessingCommand) return;
+                    
+                    const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
+                    console.log("Heard:", transcript);
+
+                    // Allow 'aim' or 'a i m'
+                    if (transcript.includes('aim') || transcript.includes('a i m') || transcript.includes('hey am') || transcript.includes('a.m.')) {
+                        isProcessingCommand = true;
+                        wakeWordRecognition.stop(); // Pause listening
+                        wakeWordBtn.classList.remove('listening');
+                        wakeWordStatus.textContent = "Processing...";
+
+                        // Extract command
+                        let command = transcript.replace(/.*?(aim|a i m|hey am|a\.m\.)/i, '').trim();
+                        // Remove punctuation from start
+                        command = command.replace(/^[.,\/#!$%\^&\*;:{}=\-_`~()]+/, "").trim();
+
+                        if (command) {
+                            deviceChatInput.value = command;
+                            await handleDeviceChat();
+                        } else {
+                            const utterance = new SpeechSynthesisUtterance("Yes? I'm listening.");
+                            window.speechSynthesis.speak(utterance);
+                        }
+
+                        // Wait for TTS to finish before resuming
+                        const checkSpeaking = setInterval(() => {
+                            if (!window.speechSynthesis.speaking) {
+                                clearInterval(checkSpeaking);
+                                isProcessingCommand = false;
+                                if (isWakeWordMode) wakeWordRecognition.start();
+                            }
+                        }, 500);
+                    }
+                };
+
+                wakeWordRecognition.onend = () => {
+                    if (isWakeWordMode && !isProcessingCommand) {
+                        try { wakeWordRecognition.start(); } catch(e){}
+                    } else if (!isWakeWordMode) {
+                        wakeWordBtn.classList.remove('listening');
+                        wakeWordStatus.textContent = 'Enable "Hey AI.M"';
+                    }
+                };
+
+                wakeWordBtn.addEventListener('click', () => {
+                    isWakeWordMode = !isWakeWordMode;
+                    if (isWakeWordMode) {
+                        try { wakeWordRecognition.start(); } catch(e){}
+                    } else {
+                        isProcessingCommand = false;
+                        wakeWordRecognition.stop();
+                    }
+                });
+            }
         }
     }
     // Govee Devices Logic

@@ -394,18 +394,60 @@ body {
 
 /* Chatbot Section */
 /* Weather Widget */
-.weather-widget {
+.widgets-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.weather-widget, .spotify-widget {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 20px;
     padding: 20px 40px;
     border-radius: 15px;
-    margin-bottom: 30px;
-    max-width: fit-content;
-    margin-left: auto;
-    margin-right: auto;
     background: var(--card-bg);
+    flex-direction: column;
+    min-width: 300px;
+}
+
+.weather-widget {
+    flex-direction: row;
+}
+
+.spotify-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.spotify-info h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--text-primary);
+}
+
+.spotify-info p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.spot-btn {
+    background: transparent;
+    color: var(--text-primary);
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.3s, transform 0.2s;
+}
+
+.spot-btn:hover {
+    color: #1DB954;
+    transform: scale(1.1);
 }
 
 .weather-icon i {

@@ -379,8 +379,20 @@ document.addEventListener('DOMContentLoaded', () => {
                         command = command.replace(/^[.,\/#!$%\^&\*;:{}=\-_`~()]+/, "").trim();
 
                         if (command) {
-                            deviceChatInput.value = command;
-                            await handleDeviceChat();
+                            // Intercept Spotify Voice Commands
+                            if (command.includes('pause music') || command.includes('pause the music') || command === 'pause') {
+                                await fetch('/api/spotify/control', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ action: 'pause' }) });
+                                appendMessage("Paused Spotify.", 'bot', deviceChatMessages);
+                            } else if (command.includes('play music') || command.includes('play the music') || command === 'play') {
+                                await fetch('/api/spotify/control', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ action: 'play' }) });
+                                appendMessage("Playing Spotify.", 'bot', deviceChatMessages);
+                            } else if (command.includes('skip song') || command.includes('skip this song') || command.includes('next song')) {
+                                await fetch('/api/spotify/control', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ action: 'next' }) });
+                                appendMessage("Skipped to next song.", 'bot', deviceChatMessages);
+                            } else {
+                                deviceChatInput.value = command;
+                                await handleDeviceChat();
+                            }
                         } else {
                             const utterance = new SpeechSynthesisUtterance("Yes? I'm listening.");
                             window.speechSynthesis.speak(utterance);
@@ -424,7 +436,80 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (devicesGrid) {
         fetchDevices();
-        fetchWeather();
+      // Handle Weather Fetching on Load
+    fetchWeather();
+
+    // SPOTIFY LOGIC
+    const spotifyStatusText = document.getElementById('spotify-status-text');
+    const spotifyConnectBtn = document.getElementById('spotify-connect-btn');
+    const spotifyPlayer = document.getElementById('spotify-player');
+    const spotifyArt = document.getElementById('spotify-art');
+    const spotifyTrack = document.getElementById('spotify-track');
+    const spotifyArtist = document.getElementById('spotify-artist');
+    const spotPlayPause = document.getElementById('spot-play-pause');
+    
+    // Check URL for connection success
+    if (window.location.search.includes('spotify=connected')) {
+        window.history.replaceState({}, document.title, "/");
+    }
+
+    async function checkSpotify() {
+        try {
+            const statusRes = await fetch('/api/spotify/status');
+            const statusData = await statusRes.json();
+            
+            if (statusData.connected) {
+                spotifyConnectBtn.classList.add('hidden');
+                spotifyPlayer.classList.remove('hidden');
+                pollSpotify();
+                setInterval(pollSpotify, 5000); // Poll every 5s
+            }
+        } catch (e) {
+            console.error("Spotify status error", e);
+        }
+    }
+
+    async function pollSpotify() {
+        try {
+            const res = await fetch('/api/spotify/now-playing');
+            const data = await res.json();
+            
+            if (data && data.is_playing) {
+                spotifyStatusText.textContent = "Now Playing";
+                spotifyArt.src = data.item.album.images[0].url;
+                spotifyTrack.textContent = data.item.name;
+                spotifyArtist.textContent = data.item.artists.map(a => a.name).join(', ');
+                spotPlayPause.innerHTML = '<i class="fa-solid fa-pause"></i>';
+            } else {
+                spotifyStatusText.textContent = "Paused";
+                if(data && data.item) {
+                    spotifyArt.src = data.item.album.images[0].url;
+                    spotifyTrack.textContent = data.item.name;
+                    spotifyArtist.textContent = data.item.artists.map(a => a.name).join(', ');
+                }
+                spotPlayPause.innerHTML = '<i class="fa-solid fa-play"></i>';
+            }
+        } catch (e) {
+            console.error("Spotify poll error", e);
+        }
+    }
+
+    // Spotify Control Listeners
+    document.getElementById('spot-prev')?.addEventListener('click', () => {
+        fetch('/api/spotify/control', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ action: 'previous' }) });
+        setTimeout(pollSpotify, 500);
+    });
+    document.getElementById('spot-next')?.addEventListener('click', () => {
+        fetch('/api/spotify/control', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ action: 'next' }) });
+        setTimeout(pollSpotify, 500);
+    });
+    spotPlayPause?.addEventListener('click', () => {
+        const action = spotPlayPause.innerHTML.includes('pause') ? 'pause' : 'play';
+        fetch('/api/spotify/control', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ action }) });
+        setTimeout(pollSpotify, 500);
+    });
+
+    checkSpotify();
     }
 
     async function fetchWeather() {

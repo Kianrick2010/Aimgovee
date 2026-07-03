@@ -1,4 +1,92 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- AI Brain Animation Logic ---
+    const brainCanvas = document.getElementById('ai-brain-canvas');
+    let brainState = 'idle'; // idle, listening, processing
+    
+    if (brainCanvas) {
+        const ctx = brainCanvas.getContext('2d');
+        const numNeurons = 40;
+        const neurons = [];
+        const width = 150;
+        const height = 150;
+        brainCanvas.width = width;
+        brainCanvas.height = height;
+
+        // Initialize neurons
+        for (let i = 0; i < numNeurons; i++) {
+            neurons.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                vx: (Math.random() - 0.5) * 1.5,
+                vy: (Math.random() - 0.5) * 1.5,
+                radius: Math.random() * 2 + 1
+            });
+        }
+
+        function drawBrain() {
+            ctx.clearRect(0, 0, width, height);
+
+            let speedMultiplier = 1;
+            let connectionColor = 'rgba(0, 224, 255, '; // cyan default (listening)
+            let nodeColor = '#00e0ff';
+
+            if (brainState === 'processing') {
+                speedMultiplier = 4;
+                connectionColor = 'rgba(255, 0, 255, '; // pink/purple for thinking
+                nodeColor = '#ff00ff';
+            }
+
+            // Update positions
+            for (let i = 0; i < numNeurons; i++) {
+                let n = neurons[i];
+                n.x += n.vx * speedMultiplier;
+                n.y += n.vy * speedMultiplier;
+
+                // Bounce off walls
+                if (n.x <= 0 || n.x >= width) n.vx *= -1;
+                if (n.y <= 0 || n.y >= height) n.vy *= -1;
+
+                // Draw node
+                ctx.beginPath();
+                ctx.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
+                ctx.fillStyle = nodeColor;
+                ctx.fill();
+            }
+
+            // Draw connections
+            for (let i = 0; i < numNeurons; i++) {
+                for (let j = i + 1; j < numNeurons; j++) {
+                    let dx = neurons[i].x - neurons[j].x;
+                    let dy = neurons[i].y - neurons[j].y;
+                    let dist = Math.sqrt(dx*dx + dy*dy);
+
+                    if (dist < 35) {
+                        ctx.beginPath();
+                        ctx.moveTo(neurons[i].x, neurons[i].y);
+                        ctx.lineTo(neurons[j].x, neurons[j].y);
+                        ctx.strokeStyle = connectionColor + (1 - dist/35) + ')';
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(drawBrain);
+        }
+        drawBrain(); // Start loop
+    }
+
+    window.setBrainState = function(state) {
+        brainState = state;
+        if (brainCanvas) {
+            if (state === 'idle') {
+                brainCanvas.classList.remove('active');
+            } else {
+                brainCanvas.classList.add('active');
+            }
+        }
+    };
+
     // Theme Toggle Logic
     const themeToggleBtn = document.getElementById('theme-toggle');
     const themeIcon = themeToggleBtn.querySelector('i');
@@ -110,6 +198,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (siriVoice) {
                     utterance.voice = siriVoice;
                 }
+
+                utterance.onstart = () => { if (window.setBrainState && brainState !== 'listening') window.setBrainState('processing'); };
+                utterance.onend = () => { 
+                    if (window.setBrainState && !document.getElementById('wake-word-btn')?.classList.contains('listening')) {
+                        window.setBrainState('idle'); 
+                    }
+                };
 
                 window.speechSynthesis.speak(utterance);
             }
@@ -230,7 +325,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         location: window.userLocationString || "Unknown"
                     })
                 });
-                if (!response.ok) throw new Error('API Error');
+                if (!response.ok) {
+                    let errStr = 'API Error';
+                    try {
+                        const errData = await response.json();
+                        errStr = errData.error || errData.details || errStr;
+                    } catch(e) {}
+                    throw new Error(errStr);
+                }
                 const data = await response.json();
                 
                 // Intercept MAP updates
@@ -258,7 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return data.response;
             } catch (error) {
                 console.error(error);
-                return "I'm having trouble connecting to my AI brain right now!";
+                return `I'm having trouble connecting to my AI brain right now! (Details: ${error.message}). Please check the Render Logs for the exact error!`;
             }
         }
 
@@ -334,22 +436,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 recognition.onstart = () => {
                     micBtn.classList.add('listening');
+                    if (window.setBrainState) window.setBrainState('listening');
                 };
 
                 recognition.onresult = (event) => {
                     const transcript = event.results[event.results.length - 1][0].transcript;
                     inputElem.value = transcript;
+                    if (window.setBrainState) window.setBrainState('processing');
                     submitFunc();
                 };
 
                 recognition.onerror = (event) => {
-                    console.error('Speech recognition error', event.error);
-                    inputElem.value = "Mic Error: " + event.error;
+                    if (event.error !== 'aborted' && event.error !== 'no-speech') {
+                        console.error('Speech recognition error', event.error);
+                        inputElem.value = "Mic Error: " + event.error;
+                    }
                     micBtn.classList.remove('listening');
+                    if (window.setBrainState) window.setBrainState('idle');
                 };
 
                 recognition.onend = () => {
                     micBtn.classList.remove('listening');
+                    // We don't set to idle here immediately because processing might be happening
                 };
 
                 micBtn.addEventListener('click', () => {
@@ -379,7 +487,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 wakeWordRecognition.onstart = () => {
                     if (!isProcessingCommand) {
                         wakeWordBtn.classList.add('listening');
-                        wakeWordStatus.textContent = "Listening for 'Aim'...";
+                        wakeWordStatus.textContent = "Listening for a command...";
+                        if (window.setBrainState) window.setBrainState('listening');
                     }
                 };
 
@@ -389,17 +498,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
                     console.log("Heard:", transcript);
 
-                    // Allow 'aim' or 'a i m'
-                    if (transcript.includes('aim') || transcript.includes('a i m') || transcript.includes('hey am') || transcript.includes('a.m.')) {
+                    // 1. Wake words (old method)
+                    // 2. Lights: turn on, turn off, lights, color, brightness
+                    // 3. Music: play, pause, skip, volume, song, music
+                    // 4. Questions/Tasks: what, where, how, who, why, can you, tell me, weather
+                    const intentRegex = /(aim|a i m|hey am|hey aim|a\.m\.|i am|ai m|amy|ame|hey i'm|maid|made|hey m|hay m|am i|hey ai|ai maid|turn|light|color|colour|brightness|play|pause|skip|volume|song|music|what|where|how|who|why|can you|tell me|weather|temperature)/i;
+                    
+                    if (intentRegex.test(transcript)) {
                         isProcessingCommand = true;
                         wakeWordRecognition.stop(); // Pause listening
                         wakeWordBtn.classList.remove('listening');
                         wakeWordStatus.textContent = "Processing...";
+                        if (window.setBrainState) window.setBrainState('processing');
 
-                        // Extract command
-                        let command = transcript.replace(/.*?(aim|a i m|hey am|a\.m\.)/i, '').trim();
-                        // Remove punctuation from start
-                        command = command.replace(/^[.,\/#!$%\^&\*;:{}=\-_`~()]+/, "").trim();
+                        // We don't strip anything out anymore since we don't require a wake word at the start!
+                        let command = transcript;
 
                         if (command) {
                             // Intercept YouTube Voice Commands
@@ -474,9 +587,21 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (!window.speechSynthesis.speaking) {
                                 clearInterval(checkSpeaking);
                                 isProcessingCommand = false;
-                                if (isWakeWordMode) wakeWordRecognition.start();
+                                if (isWakeWordMode) {
+                                    wakeWordRecognition.start();
+                                } else {
+                                    if (window.setBrainState) window.setBrainState('idle');
+                                }
                             }
                         }, 500);
+                    } else {
+                        // Provide visual feedback of what was heard if it didn't match the intent filter
+                        wakeWordStatus.textContent = `Ignored (No command detected): "${transcript}"`;
+                        setTimeout(() => {
+                            if (!isProcessingCommand && isWakeWordMode) {
+                                wakeWordStatus.textContent = "Listening for a command...";
+                            }
+                        }, 3000);
                     }
                 };
 
@@ -485,7 +610,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         try { wakeWordRecognition.start(); } catch(e){}
                     } else if (!isWakeWordMode) {
                         wakeWordBtn.classList.remove('listening');
-                        wakeWordStatus.textContent = 'Enable "Hey AI.M"';
+                        wakeWordStatus.textContent = 'Enable Auto-Listen';
                     }
                 };
 
@@ -496,6 +621,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else {
                         isProcessingCommand = false;
                         wakeWordRecognition.stop();
+                        if (window.setBrainState) window.setBrainState('idle');
                     }
                 });
             }

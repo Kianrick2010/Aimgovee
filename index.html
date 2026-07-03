@@ -68,30 +68,9 @@
                         </div>
                     </div>
                     
-                    <!-- Spotify Widget -->
-                    <div class="spotify-widget glass" id="spotify-widget">
-                        <div class="spotify-content">
-                            <i class="fa-brands fa-spotify" style="font-size: 2rem; color: #1DB954; margin-right: 15px;"></i>
-                            <div class="spotify-info">
-                                <h3>Spotify</h3>
-                                <p id="spotify-status-text">Not Connected</p>
-                            </div>
-                        </div>
-                        <a href="/api/spotify/login" class="btn btn-primary" id="spotify-connect-btn" style="padding: 5px 15px; font-size: 0.9rem;">Connect</a>
-                        <div id="spotify-player" class="hidden" style="width: 100%; margin-top: 10px;">
-                            <div style="display: flex; align-items: center; gap: 15px;">
-                                <img id="spotify-art" src="" alt="Album Art" style="width: 50px; height: 50px; border-radius: 5px; object-fit: cover;">
-                                <div style="flex: 1; overflow: hidden;">
-                                    <h4 id="spotify-track" style="margin: 0; font-size: 1rem; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">Song</h4>
-                                    <p id="spotify-artist" style="margin: 0; font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">Artist</p>
-                                </div>
-                            </div>
-                            <div class="spotify-controls" style="display: flex; justify-content: center; gap: 20px; margin-top: 15px;">
-                                <button id="spot-prev" class="spot-btn"><i class="fa-solid fa-backward-step"></i></button>
-                                <button id="spot-play-pause" class="spot-btn"><i class="fa-solid fa-play"></i></button>
-                                <button id="spot-next" class="spot-btn"><i class="fa-solid fa-forward-step"></i></button>
-                            </div>
-                        </div>
+                    <!-- Spotify Embed Widget -->
+                    <div class="spotify-embed-widget glass" style="padding: 10px; border-radius: 15px; min-width: 300px;">
+                        <iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
                     </div>
                 </div>
 
@@ -216,6 +195,6 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
-    <script src="script.js?v=11"></script>
+    <script src="script.js?v=12"></script>
 </body>
 </html>

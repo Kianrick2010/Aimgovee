@@ -473,6 +473,12 @@ document.addEventListener('DOMContentLoaded', () => {
     async function pollSpotify() {
         try {
             const res = await fetch('/api/spotify/now-playing');
+            if (res.status === 401) {
+                // Token expired or server restarted, show connect button again
+                spotifyConnectBtn.style.display = 'inline-block';
+                spotifyPlayer.style.display = 'none';
+                return;
+            }
             const data = await res.json();
             
             if (data && data.is_playing && data.item) {

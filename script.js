@@ -238,6 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Intercept MAP updates
                 if (data.response && data.response.includes('[MAP:')) {
+                    const cleanResponse = data.response.replace(/\[MAP:.*?\]/, '').trim();
                     const mapMatch = data.response.match(/\[MAP:\s*(.*?)\]/);
                     if (mapMatch && mapMatch[1]) {
                         const destination = mapMatch[1].trim();
@@ -246,8 +247,15 @@ document.addEventListener('DOMContentLoaded', () => {
                             mapIframe.src = `https://maps.google.com/maps?q=${encodeURIComponent(destination)}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
                         }
                     }
+                    
+                    const mapRouteText = document.getElementById('map-route-text');
+                    if (mapRouteText) {
+                        mapRouteText.textContent = cleanResponse;
+                        mapRouteText.classList.remove('hidden');
+                    }
+
                     // Strip the tag from the spoken/visible response
-                    return data.response.replace(/\[MAP:.*?\]/, '').trim();
+                    return cleanResponse;
                 }
 
                 return data.response;
@@ -512,7 +520,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.onYouTubeIframeAPIReady = function() {
         window.ytPlayer = new YT.Player('youtube-player', {
-            height: '180',
+            height: '250',
             width: '100%',
             playerVars: {
                 listType: 'playlist',

@@ -87,11 +87,12 @@
                     </div>
 
                     <!-- Maps Widget -->
-                    <div class="map-widget glass" style="padding: 15px; border-radius: 15px; min-width: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1;">
+                    <div class="map-widget glass" style="padding: 15px; border-radius: 15px; min-width: 300px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; flex: 1;">
                         <h3 style="margin: 0 0 10px 0; font-size: 1.1rem;"><i class="fa-solid fa-map-location-dot" style="color: #4285F4; margin-right: 8px;"></i>Navigation</h3>
-                        <div style="border-radius: 8px; overflow: hidden; width: 100%; height: 180px;">
+                        <div style="border-radius: 8px; overflow: hidden; width: 100%; height: 250px;">
                             <iframe id="map-iframe" width="100%" height="100%" frameborder="0" style="border:0" src="https://maps.google.com/maps?q=London&t=&z=13&ie=UTF8&iwloc=&output=embed" allowfullscreen></iframe>
                         </div>
+                        <div id="map-route-text" class="form-message hidden" style="width: 100%; margin-top: 10px; font-size: 0.85rem; padding: 10px; border-radius: 8px; text-align: left; background: rgba(0, 0, 0, 0.1);"></div>
                     </div>
                 </div>
             </div>
@@ -207,6 +208,6 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
-    <script src="script.js?v=19"></script>
+    <script src="script.js?v=20"></script>
 </body>
 </html>

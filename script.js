@@ -475,18 +475,38 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch('/api/spotify/now-playing');
             const data = await res.json();
             
-            if (data && data.is_playing) {
+            if (data && data.is_playing && data.item) {
                 spotifyStatusText.textContent = "Now Playing";
-                spotifyArt.src = data.item.album.images[0].url;
-                spotifyTrack.textContent = data.item.name;
-                spotifyArtist.textContent = data.item.artists.map(a => a.name).join(', ');
+                
+                // Safely grab images and names
+                if (data.item.album && data.item.album.images && data.item.album.images.length > 0) {
+                    spotifyArt.src = data.item.album.images[0].url;
+                } else if (data.item.images && data.item.images.length > 0) { // For podcasts
+                    spotifyArt.src = data.item.images[0].url;
+                }
+                
+                spotifyTrack.textContent = data.item.name || "Unknown Track";
+                
+                if (data.item.artists) {
+                    spotifyArtist.textContent = data.item.artists.map(a => a.name).join(', ');
+                } else if (data.item.show) { // For podcasts
+                    spotifyArtist.textContent = data.item.show.name;
+                }
+                
                 spotPlayPause.innerHTML = '<i class="fa-solid fa-pause"></i>';
             } else {
-                spotifyStatusText.textContent = "Paused";
-                if(data && data.item) {
-                    spotifyArt.src = data.item.album.images[0].url;
-                    spotifyTrack.textContent = data.item.name;
-                    spotifyArtist.textContent = data.item.artists.map(a => a.name).join(', ');
+                spotifyStatusText.textContent = "Paused or Idle";
+                if (data && data.item) {
+                    if (data.item.album && data.item.album.images && data.item.album.images.length > 0) {
+                        spotifyArt.src = data.item.album.images[0].url;
+                    }
+                    spotifyTrack.textContent = data.item.name || "Unknown Track";
+                    if (data.item.artists) {
+                        spotifyArtist.textContent = data.item.artists.map(a => a.name).join(', ');
+                    }
+                } else {
+                    spotifyTrack.textContent = "Start playing music";
+                    spotifyArtist.textContent = "on your Spotify app";
                 }
                 spotPlayPause.innerHTML = '<i class="fa-solid fa-play"></i>';
             }

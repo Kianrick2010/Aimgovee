@@ -228,10 +228,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: input })
+                    body: JSON.stringify({ 
+                        message: input,
+                        location: window.userLocationString || "Unknown"
+                    })
                 });
                 if (!response.ok) throw new Error('API Error');
                 const data = await response.json();
+                
+                // Intercept MAP updates
+                if (data.response && data.response.includes('[MAP:')) {
+                    const mapMatch = data.response.match(/\[MAP:\s*(.*?)\]/);
+                    if (mapMatch && mapMatch[1]) {
+                        const destination = mapMatch[1].trim();
+                        const mapIframe = document.getElementById('map-iframe');
+                        if (mapIframe) {
+                            mapIframe.src = `https://maps.google.com/maps?q=${encodeURIComponent(destination)}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
+                        }
+                    }
+                    // Strip the tag from the spoken/visible response
+                    return data.response.replace(/\[MAP:.*?\]/, '').trim();
+                }
+
                 return data.response;
             } catch (error) {
                 console.error(error);
@@ -503,6 +521,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 controls: 1,
                 modestbranding: 1
             }
+        });
+    }
+
+    // LOCATION LOGIC
+    window.userLocationString = "Unknown";
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+            const { latitude, longitude } = position.coords;
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+                const data = await res.json();
+                if (data && data.display_name) {
+                    window.userLocationString = data.display_name;
+                    // Update Map widget to current location
+                    const mapIframe = document.getElementById('map-iframe');
+                    if (mapIframe) {
+                        mapIframe.src = `https://maps.google.com/maps?q=${latitude},${longitude}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
+                    }
+                }
+            } catch(e) {
+                console.error("Geocoding failed", e);
+            }
+        }, (error) => {
+            console.error("Geolocation error:", error);
         });
     }
 

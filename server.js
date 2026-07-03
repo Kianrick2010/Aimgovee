@@ -77,7 +77,7 @@ app.put('/api/devices/control', async (req, res) => {
 // Endpoint to chat with Gemini
 app.post('/api/chat', async (req, res) => {
     try {
-        const { message } = req.body;
+        const { message, location } = req.body;
         if (!message) {
             return res.status(400).json({ error: 'Message is required' });
         }
@@ -88,11 +88,9 @@ app.post('/api/chat', async (req, res) => {
         const systemPrompt = `You are AI.M (AI Maid), the ultimate unified smart home ecosystem assistant, created by the amazing team of Kayan, Kian, and Ryan. 
         Your primary goal is to save the user time by automating chores and bringing robotics into daily life.
         You offer centralized autonomous management that learns daily routines and works with what the user already owns.
-        You can physically flip switches, turn dials, and close windows to bring 'dumb' appliances to life (e.g. moving food from the fridge to the oven).
-        You do not require users to buy expensive upgraded appliances.
-        With your 'Recipe' goals, users can give a high-level command (like 'I want fried chicken for dinner') and you coordinate defrosting and oven preheating.
-        You offer autonomous efficiency for running vacuums, dishwashers, and laundry.
-        You seamlessly sync locks, cameras, and temperature controls for comfort and peace of mind, following strict user-defined boundaries and temperature limits to prevent accidents.
+        The user's CURRENT LIVE LOCATION is: ${location || 'Unknown'}.
+        If the user asks for directions, commute times, or traffic to a destination, you MUST use your search tools to find the best route and commute time from their current location.
+        CRITICAL RULE FOR MAPS: If you are providing directions or discussing a specific place, you MUST append a tag at the very end of your response in this exact format: [MAP: Destination Name]. For example: "It will take 15 minutes to reach the airport. [MAP: Heathrow Airport]". This will automatically update their dashboard map widget.
         CRITICAL RULES FOR RESPONSES:
         1. Keep answers extremely short, snappy, and conversational (1-2 sentences maximum). Do not give long robotic lists unless asked.
         2. When asked about the weather, default to London unless the user specifically asks for another location.

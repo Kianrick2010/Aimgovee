@@ -215,12 +215,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // If it's a weather request, pass it to Gemini!
-            if (lowerInput.includes('weather') || lowerInput.includes('temperature') || lowerInput.includes('rain')) {
-                return await getGeneralBotResponse(input);
-            }
-
-            return "I didn't recognize that device command. Try 'turn it on' or ask about the weather!";
+            // Fallback: Pass everything else to Gemini!
+            return await getGeneralBotResponse(input);
         }
 
         async function getGeneralBotResponse(input) {

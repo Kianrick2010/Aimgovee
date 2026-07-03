@@ -116,98 +116,32 @@ app.post('/api/chat', async (req, res) => {
         res.json({ response: reply });
     } catch (error) {
         console.error('Error with Gemini API:', error.response?.data || error.message);
-        res.status(500).json({ error: 'Failed to chat with AI.M' });
+        res.status(500).json({ error: 'Failed to connect to Gemini API', details: error.message });
     }
 });
 
-// Spotify API Routes
-
-app.get('/api/spotify/login', (req, res) => {
-    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
-    const host = req.headers.host;
-    const dynamicRedirectUri = `${protocol}://${host}/api/spotify/callback`;
-
-    const scope = 'user-read-playback-state user-modify-playback-state user-read-currently-playing';
-    const authUrl = 'https://accounts.spotify.com/authorize?' + new URLSearchParams({
-        response_type: 'code',
-        client_id: SPOTIFY_CLIENT_ID,
-        scope: scope,
-        redirect_uri: dynamicRedirectUri
-    }).toString();
-    res.redirect(authUrl);
-});
-
-app.get('/api/spotify/callback', async (req, res) => {
-    const code = req.query.code || null;
-    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
-    const host = req.headers.host;
-    const dynamicRedirectUri = `${protocol}://${host}/api/spotify/callback`;
-
+// Endpoint to find YouTube video ID using Gemini
+app.post('/api/youtube-search', async (req, res) => {
     try {
-        const response = await axios({
-            method: 'post',
-            url: 'https://accounts.spotify.com/api/token',
-            data: new URLSearchParams({
-                code: code,
-                redirect_uri: dynamicRedirectUri,
-                grant_type: 'authorization_code'
-            }).toString(),
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Authorization': 'Basic ' + Buffer.from(SPOTIFY_CLIENT_ID + ':' + SPOTIFY_CLIENT_SECRET).toString('base64')
+        const { query } = req.body;
+        if (!query) return res.status(400).json({ error: 'Query is required' });
+        
+        const systemPrompt = "Search the web for the most popular official YouTube music video for the user's request. Return ONLY the 11-character YouTube Video ID. Do NOT return any URLs, extra words, markdown, or punctuation. Just the 11 letters/numbers.";
+        
+        const response = await axios.post(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+            {
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                contents: [{ parts: [{ text: query }] }],
+                tools: [{ googleSearch: {} }]
             }
-        });
-        spotifyAccessToken = response.data.access_token;
-        spotifyRefreshToken = response.data.refresh_token;
-        res.redirect('/?spotify=connected');
+        );
+
+        const reply = response.data.candidates[0].content.parts[0].text.trim();
+        res.json({ videoId: reply });
     } catch (error) {
-        console.error('Spotify Auth Error:', error.response?.data || error.message);
-        res.redirect('/?spotify=error');
-    }
-});
-
-app.get('/api/spotify/status', (req, res) => {
-    res.json({ connected: !!spotifyAccessToken });
-});
-
-app.get('/api/spotify/now-playing', async (req, res) => {
-    if (!spotifyAccessToken) return res.status(401).json({ error: 'Not authenticated' });
-    try {
-        const response = await axios.get('https://api.spotify.com/v1/me/player', {
-            headers: { 'Authorization': 'Bearer ' + spotifyAccessToken }
-        });
-        if (response.status === 204 || response.status > 400 || !response.data) {
-            return res.json({ is_playing: false });
-        }
-        res.json(response.data);
-    } catch (error) {
-        if (error.response?.status === 401) spotifyAccessToken = null;
-        res.status(500).json({ error: 'Failed to fetch now playing' });
-    }
-});
-
-app.post('/api/spotify/control', async (req, res) => {
-    if (!spotifyAccessToken) return res.status(401).json({ error: 'Not authenticated' });
-    const { action } = req.body;
-    let url = 'https://api.spotify.com/v1/me/player/';
-    let method = 'post';
-
-    if (action === 'play') { url += 'play'; method = 'put'; }
-    else if (action === 'pause') { url += 'pause'; method = 'put'; }
-    else if (action === 'next') url += 'next';
-    else if (action === 'previous') url += 'previous';
-    else return res.status(400).json({ error: 'Invalid action' });
-
-    try {
-        await axios({
-            method,
-            url,
-            headers: { 'Authorization': 'Bearer ' + spotifyAccessToken }
-        });
-        res.json({ success: true });
-    } catch (error) {
-        console.error('Spotify Control Error:', error.response?.data || error.message);
-        res.status(500).json({ error: 'Control failed' });
+        console.error('Gemini YouTube Search Error:', error.message);
+        res.status(500).json({ error: 'Failed to search YouTube' });
     }
 });
 

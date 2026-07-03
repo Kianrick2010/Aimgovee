@@ -383,9 +383,36 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (command.includes('pause music') || command.includes('pause the music') || command === 'pause') {
                                 if (window.ytPlayer && window.ytPlayer.pauseVideo) window.ytPlayer.pauseVideo();
                                 appendMessage("Paused music.", 'bot', deviceChatMessages);
-                            } else if (command.includes('play music') || command.includes('play the music') || command === 'play') {
-                                if (window.ytPlayer && window.ytPlayer.playVideo) window.ytPlayer.playVideo();
-                                appendMessage("Playing music.", 'bot', deviceChatMessages);
+                            } else if (command.startsWith('play ')) {
+                                const songName = command.replace('play ', '').trim();
+                                if (songName === 'music' || songName === 'the music') {
+                                    if (window.ytPlayer && window.ytPlayer.playVideo) window.ytPlayer.playVideo();
+                                    appendMessage("Playing music.", 'bot', deviceChatMessages);
+                                } else {
+                                    appendMessage(`Searching YouTube for "${songName}"...`, 'bot', deviceChatMessages);
+                                    try {
+                                        const res = await fetch('/api/youtube-search', {
+                                            method: 'POST',
+                                            headers: {'Content-Type': 'application/json'},
+                                            body: JSON.stringify({ query: songName })
+                                        });
+                                        const data = await res.json();
+                                        if (data.videoId && data.videoId.length >= 11) {
+                                            // Extract just the 11 character ID in case Gemini added extra fluff
+                                            const idMatch = data.videoId.match(/[a-zA-Z0-9_-]{11}/);
+                                            if (idMatch && window.ytPlayer && window.ytPlayer.loadVideoById) {
+                                                window.ytPlayer.loadVideoById(idMatch[0]);
+                                                appendMessage(`Playing ${songName}.`, 'bot', deviceChatMessages);
+                                            } else {
+                                                appendMessage("Couldn't find that song.", 'bot', deviceChatMessages);
+                                            }
+                                        } else {
+                                            appendMessage("Couldn't find that song.", 'bot', deviceChatMessages);
+                                        }
+                                    } catch (e) {
+                                        appendMessage("Error searching for song.", 'bot', deviceChatMessages);
+                                    }
+                                }
                             } else if (command.includes('skip song') || command.includes('skip this song') || command.includes('next song') || command === 'skip') {
                                 if (window.ytPlayer && window.ytPlayer.nextVideo) window.ytPlayer.nextVideo();
                                 appendMessage("Skipped to next song.", 'bot', deviceChatMessages);

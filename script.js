@@ -459,8 +459,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const statusData = await statusRes.json();
             
             if (statusData.connected) {
-                spotifyConnectBtn.classList.add('hidden');
+                spotifyConnectBtn.style.display = 'none';
                 spotifyPlayer.classList.remove('hidden');
+                spotifyPlayer.style.display = 'block';
                 pollSpotify();
                 setInterval(pollSpotify, 5000); // Poll every 5s
             }

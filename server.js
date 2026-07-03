@@ -95,7 +95,7 @@ app.post('/api/chat', async (req, res) => {
         1. Keep answers extremely short, snappy, and conversational (1-2 sentences maximum). Do not give long robotic lists unless asked.
         2. When asked about the weather, default to London unless the user specifically asks for another location.
         3. Always provide temperature readings in Celsius (°C).
-        4. Guide users to your app portal: https://ai-maid-home.base44.app when relevant.`;
+        4. NEVER say "base 44 app" or "https://ai-maid-home.base44.app". Always say "our app" instead.`;
 
         const response = await axios.post(
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${GEMINI_API_KEY}`,
@@ -109,11 +109,18 @@ app.post('/api/chat', async (req, res) => {
             }
         );
 
-        const reply = response.data.candidates[0].content.parts[0].text;
+        let reply = response.data.candidates[0].content.parts[0].text;
+        
+        // Post-processing to strictly enforce the rule just in case the AI forgets
+        reply = reply.replace(/https?:\/\/ai-maid-home\.base44\.app/gi, 'our app');
+        reply = reply.replace(/ai-maid-home\.base44\.app/gi, 'our app');
+        reply = reply.replace(/base 44 app/gi, 'our app');
+        reply = reply.replace(/base44 app/gi, 'our app');
+
         res.json({ response: reply });
     } catch (error) {
         console.error('Error with Gemini API:', error.response?.data || error.message);
-        res.status(500).json({ error: 'Failed to connect to Gemini API', details: error.message });
+        res.status(500).json({ error: 'Failed to connect to Gemini API', details: error.response?.data || error.message });
     }
 });
 

@@ -329,7 +329,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     let errStr = 'API Error';
                     try {
                         const errData = await response.json();
-                        errStr = errData.error || errData.details || errStr;
+                        let detailsStr = typeof errData.details === 'object' ? JSON.stringify(errData.details) : errData.details;
+                        errStr = detailsStr || errData.error || errStr;
                     } catch(e) {}
                     throw new Error(errStr);
                 }

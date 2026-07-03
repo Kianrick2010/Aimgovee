@@ -379,8 +379,20 @@ document.addEventListener('DOMContentLoaded', () => {
                         command = command.replace(/^[.,\/#!$%\^&\*;:{}=\-_`~()]+/, "").trim();
 
                         if (command) {
-                            deviceChatInput.value = command;
-                            await handleDeviceChat();
+                            // Intercept YouTube Voice Commands
+                            if (command.includes('pause music') || command.includes('pause the music') || command === 'pause') {
+                                if (window.ytPlayer && window.ytPlayer.pauseVideo) window.ytPlayer.pauseVideo();
+                                appendMessage("Paused music.", 'bot', deviceChatMessages);
+                            } else if (command.includes('play music') || command.includes('play the music') || command === 'play') {
+                                if (window.ytPlayer && window.ytPlayer.playVideo) window.ytPlayer.playVideo();
+                                appendMessage("Playing music.", 'bot', deviceChatMessages);
+                            } else if (command.includes('skip song') || command.includes('skip this song') || command.includes('next song') || command === 'skip') {
+                                if (window.ytPlayer && window.ytPlayer.nextVideo) window.ytPlayer.nextVideo();
+                                appendMessage("Skipped to next song.", 'bot', deviceChatMessages);
+                            } else {
+                                deviceChatInput.value = command;
+                                await handleDeviceChat();
+                            }
                         } else {
                             const utterance = new SpeechSynthesisUtterance("Yes? I'm listening.");
                             window.speechSynthesis.speak(utterance);
@@ -424,6 +436,26 @@ document.addEventListener('DOMContentLoaded', () => {
         fetchDevices();
       // Handle Weather Fetching on Load
     fetchWeather();
+    }
+
+    // YOUTUBE LOGIC
+    const tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    const firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+    window.onYouTubeIframeAPIReady = function() {
+        window.ytPlayer = new YT.Player('youtube-player', {
+            height: '180',
+            width: '100%',
+            playerVars: {
+                listType: 'playlist',
+                list: 'PLx0sYbCqOb8TBPRdmBHs5Iftvv9TPboYG', // YouTube Top Hits Playlist
+                autoplay: 0,
+                controls: 1,
+                modestbranding: 1
+            }
+        });
     }
 
     async function fetchWeather() {

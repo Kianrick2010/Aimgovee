@@ -105,8 +105,7 @@ app.post('/api/chat', async (req, res) => {
                 },
                 contents: [{
                     parts: [{ text: message }]
-                }],
-                tools: [{ googleSearch: {} }]
+                }]
             }
         );
 
@@ -130,8 +129,7 @@ app.post('/api/youtube-search', async (req, res) => {
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${GEMINI_API_KEY}`,
             {
                 systemInstruction: { parts: [{ text: systemPrompt }] },
-                contents: [{ parts: [{ text: query }] }],
-                tools: [{ googleSearch: {} }]
+                contents: [{ parts: [{ text: query }] }]
             }
         );
 

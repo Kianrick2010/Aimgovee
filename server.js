@@ -98,7 +98,7 @@ app.post('/api/chat', async (req, res) => {
         4. Guide users to your app portal: https://ai-maid-home.base44.app when relevant.`;
 
         const response = await axios.post(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${GEMINI_API_KEY}`,
             {
                 systemInstruction: {
                     parts: [{ text: systemPrompt }]
@@ -127,7 +127,7 @@ app.post('/api/youtube-search', async (req, res) => {
         const systemPrompt = "Search the web for the most popular official YouTube music video for the user's request. Return ONLY the 11-character YouTube Video ID. Do NOT return any URLs, extra words, markdown, or punctuation. Just the 11 letters/numbers.";
         
         const response = await axios.post(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${GEMINI_API_KEY}`,
             {
                 systemInstruction: { parts: [{ text: systemPrompt }] },
                 contents: [{ parts: [{ text: query }] }],

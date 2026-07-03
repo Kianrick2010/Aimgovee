@@ -123,25 +123,33 @@ app.post('/api/chat', async (req, res) => {
 // Spotify API Routes
 
 app.get('/api/spotify/login', (req, res) => {
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const host = req.headers.host;
+    const dynamicRedirectUri = `${protocol}://${host}/api/spotify/callback`;
+
     const scope = 'user-read-playback-state user-modify-playback-state user-read-currently-playing';
     const authUrl = 'https://accounts.spotify.com/authorize?' + new URLSearchParams({
         response_type: 'code',
         client_id: SPOTIFY_CLIENT_ID,
         scope: scope,
-        redirect_uri: SPOTIFY_REDIRECT_URI
+        redirect_uri: dynamicRedirectUri
     }).toString();
     res.redirect(authUrl);
 });
 
 app.get('/api/spotify/callback', async (req, res) => {
     const code = req.query.code || null;
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const host = req.headers.host;
+    const dynamicRedirectUri = `${protocol}://${host}/api/spotify/callback`;
+
     try {
         const response = await axios({
             method: 'post',
             url: 'https://accounts.spotify.com/api/token',
             data: new URLSearchParams({
                 code: code,
-                redirect_uri: SPOTIFY_REDIRECT_URI,
+                redirect_uri: dynamicRedirectUri,
                 grant_type: 'authorization_code'
             }).toString(),
             headers: {

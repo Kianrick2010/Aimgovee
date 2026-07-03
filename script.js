@@ -383,6 +383,27 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (command.includes('pause music') || command.includes('pause the music') || command === 'pause') {
                                 if (window.ytPlayer && window.ytPlayer.pauseVideo) window.ytPlayer.pauseVideo();
                                 appendMessage("Paused music.", 'bot', deviceChatMessages);
+                            } else if (command.includes('volume') || command.includes('turn the music up') || command.includes('turn the music down')) {
+                                if (window.ytPlayer && window.ytPlayer.setVolume) {
+                                    let currentVol = window.ytPlayer.getVolume();
+                                    if (command.includes('up')) {
+                                        window.ytPlayer.setVolume(Math.min(100, currentVol + 20));
+                                        appendMessage("Turned volume up.", 'bot', deviceChatMessages);
+                                    } else if (command.includes('down')) {
+                                        window.ytPlayer.setVolume(Math.max(0, currentVol - 20));
+                                        appendMessage("Turned volume down.", 'bot', deviceChatMessages);
+                                    } else {
+                                        // Try to extract a number
+                                        const match = command.match(/\d+/);
+                                        if (match) {
+                                            const vol = parseInt(match[0], 10);
+                                            window.ytPlayer.setVolume(Math.min(100, Math.max(0, vol)));
+                                            appendMessage(`Set volume to ${vol}%.`, 'bot', deviceChatMessages);
+                                        } else {
+                                            appendMessage("I couldn't understand the volume level.", 'bot', deviceChatMessages);
+                                        }
+                                    }
+                                }
                             } else if (command.startsWith('play ')) {
                                 const songName = command.replace('play ', '').trim();
                                 if (songName === 'music' || songName === 'the music') {

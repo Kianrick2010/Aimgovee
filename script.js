@@ -548,19 +548,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // CLOCK LOGIC
-    function updateClock() {
-        const now = new Date();
-        const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const dateString = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
-        const clockTime = document.getElementById('clock-time');
-        const clockDate = document.getElementById('clock-date');
-        if (clockTime) clockTime.textContent = timeString;
-        if (clockDate) clockDate.textContent = dateString;
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
-
     async function fetchWeather() {
         const weatherTemp = document.getElementById('weather-temp');
         const weatherDesc = document.getElementById('weather-desc');

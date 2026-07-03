@@ -74,11 +74,16 @@
                         <div id="youtube-player" style="border-radius: 8px; overflow: hidden; width: 100%; max-width: 320px;"></div>
                     </div>
 
-                    <!-- Clock Widget -->
-                    <div class="clock-widget glass" style="padding: 15px; border-radius: 15px; min-width: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1;">
-                        <h3 style="margin: 0 0 10px 0; font-size: 1.1rem;"><i class="fa-solid fa-clock" style="color: var(--accent-secondary); margin-right: 8px;"></i>Time</h3>
-                        <h2 id="clock-time" style="font-size: 3rem; margin: 0; color: var(--text-primary); font-variant-numeric: tabular-nums;">--:--</h2>
-                        <p id="clock-date" style="font-size: 1.1rem; color: var(--text-muted); margin: 0;">Loading...</p>
+                    <!-- Smart Devices Widget -->
+                    <div class="device-widget glass" style="padding: 15px; border-radius: 15px; min-width: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1;">
+                        <h3 style="margin: 0 0 10px 0; font-size: 1.1rem;"><i class="fa-solid fa-lightbulb" style="color: var(--accent-primary); margin-right: 8px;"></i>Smart Devices</h3>
+                        <div id="device-status-message" class="form-message hidden" style="width: 100%; margin-bottom: 10px; font-size: 0.8rem; padding: 5px;"></div>
+                        <div class="grid devices-grid" id="devices-grid" style="width: 100%; height: 100%; display: flex; flex-direction: column; gap: 10px; overflow-y: auto;">
+                            <!-- Devices will be populated here by JavaScript -->
+                            <div class="device-loading" style="text-align: center; color: var(--text-muted); padding: 20px;">
+                                <i class="fa-solid fa-spinner fa-spin"></i> Loading...
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Maps Widget -->
@@ -87,15 +92,6 @@
                         <div style="border-radius: 8px; overflow: hidden; width: 100%; height: 180px;">
                             <iframe id="map-iframe" width="100%" height="100%" frameborder="0" style="border:0" src="https://maps.google.com/maps?q=London&t=&z=13&ie=UTF8&iwloc=&output=embed" allowfullscreen></iframe>
                         </div>
-                    </div>
-                </div>
-
-                <div id="device-status-message" class="form-message hidden"></div>
-                <div class="grid devices-grid" id="devices-grid">
-                    <!-- Devices will be populated here by JavaScript -->
-                    <div class="card glass device-loading">
-                        <i class="fa-solid fa-spinner fa-spin"></i>
-                        <p>Loading devices...</p>
                     </div>
                 </div>
             </div>
@@ -211,6 +207,6 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
-    <script src="script.js?v=18"></script>
+    <script src="script.js?v=19"></script>
 </body>
 </html>
